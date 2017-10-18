@@ -129,6 +129,11 @@ class stack
             *currentFreeElement = elementToPush;
             currentFreeElement++;
             
+            if ( ( currentFreeElement ) == ( beginningOfStack + ( stackCapacity - 1 ) ) )
+                {
+                enlargeStack();
+                }
+            
             return 0;
             }
         
@@ -265,8 +270,11 @@ class stack
             
             for ( int i = 0; i < listOfErrors.size(); i++ )
                 {
-                dumpOutput.writeNextChar ( 'f' );
+                dumpOutput.writeNextChar ( listOfErrors [ i ] );
                 }
+                
+                
+            // make POISON_INT, POISON_DOUBLE
 
             return 0;
             }
@@ -294,6 +302,25 @@ class stack
             
             return 0;
             }
+            
+        int enlargeStack()
+            {
+            if ( beginningOfStack == nullptr )
+                {
+                printf ( "Beginning pointer isn't correct. ¯|_(ツ)_/¯ \n" );
+                return -1;
+                }
+                
+                
+            int tempCurrentFreeElement = ( currentFreeElement - beginningOfStack );
+            
+            beginningOfStack = ( typeOfData* ) realloc ( beginningOfStack, ( ( stackCapacity * 2 ) * sizeof ( typeOfData ) ) );
+            stackCapacity = stackCapacity * 2;
+            
+            currentFreeElement = ( beginningOfStack + tempCurrentFreeElement );
+            
+            return 0;
+            }
         
         
     };
@@ -308,18 +335,13 @@ int main(int argc, const char * argv[])
     stack myStack ( 2 );
     myStack.push ( 53 );
     myStack.push ( 46 );
+    myStack.push ( 5374925 );
+//    myStack.push ( 42294289 );
+    myStack.push ( 4920 );
     myStack.pop();
-    myStack.push ( 5348 );
-    
-    stack myStack2 ( 1 );
-    myStack2.push ( 28379 );
-    myStack2.push ( 4727 );
-    
-    myStack.swap ( myStack2 );
-    
     myStack.dump();
-    
-    printf ( "%d", myStack.size() );
+
+    printf ( "%d", *myStack.top() );
     
     return 0;
     }
