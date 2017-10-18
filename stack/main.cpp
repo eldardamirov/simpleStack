@@ -8,6 +8,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
+#include <functional>
 
 #include <time.h>
 
@@ -16,13 +18,18 @@
 
 
 
+const int poisonInt = 12345678;
+const double poisonDouble = NAN;
+const float poisonFloat = NAN;
+const char poisonChar = '~';
 
 
-class stack
+
+
+
+template <typename typeOfData> class stack
     {
     public:
-        
-        typedef int typeOfData;
         
         
         stack ( size_t newStackCapacity )
@@ -273,7 +280,38 @@ class stack
                 dumpOutput.writeNextChar ( listOfErrors [ i ] );
                 }
                 
+            
+            dumpOutput.writeString ( "\n Stack is" );
+            if ( ok() == true )
+                {
+                dumpOutput.writeString ( " ok.\n" );
+                }
+            else
+                {
+                dumpOutput.writeString ( "n't ok.\n" );
+                }
+            
+            for ( int i = 0; i < getStackCapacity(); i++ )
+                {
+                dumpOutput.writeString ( "\n[ " );
                 
+                if ( *( beginningOfStack + i ) != poisonValue )
+                    {
+                    dumpOutput.writeNextChar ( ( typeOfData ) * ( beginningOfStack + i ) );
+                    }
+                else
+                    {
+                    dumpOutput.writeString ( " Here is poison value " );
+//                    dumpOutput.writeString ( "%" );
+                    }
+                dumpOutput.writeString ( " ]" );
+                }
+                
+                
+            for ( int i = 0; i < getStackCapacity(); i++ )
+                {
+                std::cout << ( typeOfData ) *( beginningOfStack + i ) << std::endl;
+                }
             // make POISON_INT, POISON_DOUBLE
 
             return 0;
@@ -286,11 +324,38 @@ class stack
 
         size_t stackCapacity = 0;
         typeOfData* currentFreeElement = nullptr;
+        typeOfData poisonValue = NULL;
         std::string listOfErrors = "";
         
         int init()
             {
             beginningOfStack = ( typeOfData* ) calloc ( stackCapacity, sizeof ( typeOfData ) );
+            
+            if ( typeid ( typeOfData ).name() == typeid ( int ).name() )
+                {
+                poisonValue = poisonInt;
+                }
+            else if ( typeid ( typeOfData ).name() == typeid ( double ).name() )
+                {
+                poisonValue = poisonDouble;
+                }
+            else if ( typeid ( typeOfData ).name() == typeid ( float ).name() )
+                {
+                poisonValue = poisonFloat;
+                }
+            else if ( typeid ( typeOfData ).name() == typeid ( char ).name() )
+                {
+                poisonValue = poisonChar;
+                }
+            else
+                {
+                poisonValue = NAN;
+                }
+            
+            for ( int i = 0; i < getStackCapacity(); i++ )
+                {
+                *( beginningOfStack + i ) = poisonValue;
+                }
             
             if ( beginningOfStack == nullptr )
                 {
@@ -301,6 +366,11 @@ class stack
             currentFreeElement = beginningOfStack;
             
             return 0;
+            }
+            
+        bool ok()
+            {
+            return false;
             }
             
         int enlargeStack()
@@ -316,8 +386,14 @@ class stack
             
             beginningOfStack = ( typeOfData* ) realloc ( beginningOfStack, ( ( stackCapacity * 2 ) * sizeof ( typeOfData ) ) );
             stackCapacity = stackCapacity * 2;
+        
             
             currentFreeElement = ( beginningOfStack + tempCurrentFreeElement );
+        
+            for ( typeOfData* i = currentFreeElement; i < ( beginningOfStack + stackCapacity ); i++ )
+                {
+                *i = poisonValue;
+                }
             
             return 0;
             }
@@ -329,19 +405,19 @@ class stack
 
 int main(int argc, const char * argv[])
     {
-    
-
-    
-    stack myStack ( 2 );
-    myStack.push ( 53 );
-    myStack.push ( 46 );
-    myStack.push ( 5374925 );
-//    myStack.push ( 42294289 );
-    myStack.push ( 4920 );
+    stack <int> myStack ( 2 );
+    myStack.push ( 4 );
+    myStack.push ( 6 );
+    myStack.push ( 1 );
+    myStack.push ( 17 );
+    myStack.push ( 0 );
     myStack.pop();
+    myStack.pop();
+    
     myStack.dump();
 
-    printf ( "%d", *myStack.top() );
+//    printf ( "%d", *myStack.top() );
     
     return 0;
     }
+

@@ -181,12 +181,22 @@ class writeToFile
             }
 
 
+        
+
         void writeNextChar ( char inputChar )
             {
             map [ currentPosition ] = inputChar;
             currentPosition++;
             }
-
+        
+        void writeString ( std::string inputString )
+            {
+            for ( int i = 0; i < inputString.size(); i++ )
+                {
+                writeNextChar ( inputString [ i ] );
+                }
+            }
+        
         ~writeToFile()
             {
             msync ( map, fileSizeMe, MS_SYNC );
