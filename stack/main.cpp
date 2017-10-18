@@ -10,11 +10,13 @@
 #include <stdio.h>
 #include <math.h>
 #include <functional>
+#include <unordered_map>
 
 #include <time.h>
 
 
 #include "fileIO.h"
+
 
 
 
@@ -24,7 +26,11 @@ const float poisonFloat = NAN;
 const char poisonChar = '~';
 
 
-
+template <typename typeOfData> struct stackElement
+    {
+    typeOfData element;
+    size_t previousHash;
+    };
 
 
 template <typename typeOfData> class stack
@@ -133,7 +139,7 @@ template <typename typeOfData> class stack
                 return -1;
                 }
             
-            *currentFreeElement = elementToPush;
+            currentFreeElement->element = elementToPush;
             currentFreeElement++;
             
             if ( ( currentFreeElement ) == ( beginningOfStack + ( stackCapacity - 1 ) ) )
@@ -170,11 +176,11 @@ template <typename typeOfData> class stack
             
             if ( ( currentFreeElement - 1 ) < beginningOfStack )
                 {
-                return beginningOfStack;
+                return ( typeOfData* ) beginningOfStack->element;
                 }
             else
                 {
-                return ( currentFreeElement - 1 );
+                return ( typeOfData* ) ( currentFreeElement - 1 )->element;
                 }
                 
             }
@@ -295,9 +301,9 @@ template <typename typeOfData> class stack
                 {
                 dumpOutput.writeString ( "\n[ " );
                 
-                if ( *( beginningOfStack + i ) != poisonValue )
+                if ( ( beginningOfStack + i )->element != poisonValue )
                     {
-                    dumpOutput.writeNextChar ( ( typeOfData ) * ( beginningOfStack + i ) );
+                    dumpOutput.writeNextChar ( ( typeOfData ) ( beginningOfStack + i )->element );
                     }
                 else
                     {
@@ -310,7 +316,7 @@ template <typename typeOfData> class stack
                 
             for ( int i = 0; i < getStackCapacity(); i++ )
                 {
-                std::cout << ( typeOfData ) *( beginningOfStack + i ) << std::endl;
+                std::cout << ( typeOfData ) ( beginningOfStack + i )->element << std::endl;
                 }
             // make POISON_INT, POISON_DOUBLE
 
@@ -320,16 +326,20 @@ template <typename typeOfData> class stack
         
     
     private:
-        typeOfData* beginningOfStack = nullptr;
+    
+//        typeOfData* beginningOfStack = nullptr;
+        stackElement <typeOfData>* beginningOfStack ;
 
         size_t stackCapacity = 0;
-        typeOfData* currentFreeElement = nullptr;
+//        typeOfData* currentFreeElement = nullptr;
+        stackElement <typeOfData>* currentFreeElement;
         typeOfData poisonValue = NULL;
         std::string listOfErrors = "";
         
         int init()
             {
-            beginningOfStack = ( typeOfData* ) calloc ( stackCapacity, sizeof ( typeOfData ) );
+//            beginningOfStack = ( typeOfData* ) calloc ( stackCapacity, sizeof ( typeOfData ) );
+            beginningOfStack = ( stackElement <typeOfData>* ) calloc ( stackCapacity, sizeof ( stackElement <typeOfData> ) );
             
             if ( typeid ( typeOfData ).name() == typeid ( int ).name() )
                 {
@@ -354,7 +364,7 @@ template <typename typeOfData> class stack
             
             for ( int i = 0; i < getStackCapacity(); i++ )
                 {
-                *( beginningOfStack + i ) = poisonValue;
+                ( beginningOfStack + i )->element = poisonValue;
                 }
             
             if ( beginningOfStack == nullptr )
@@ -364,6 +374,8 @@ template <typename typeOfData> class stack
                 }
             
             currentFreeElement = beginningOfStack;
+            
+            
             
             return 0;
             }
@@ -384,15 +396,15 @@ template <typename typeOfData> class stack
                 
             int tempCurrentFreeElement = ( currentFreeElement - beginningOfStack );
             
-            beginningOfStack = ( typeOfData* ) realloc ( beginningOfStack, ( ( stackCapacity * 2 ) * sizeof ( typeOfData ) ) );
+            beginningOfStack = ( stackElement <typeOfData>* ) realloc ( beginningOfStack, ( ( stackCapacity * 2 ) * sizeof ( stackElement <typeOfData> ) ) );
             stackCapacity = stackCapacity * 2;
         
             
             currentFreeElement = ( beginningOfStack + tempCurrentFreeElement );
         
-            for ( typeOfData* i = currentFreeElement; i < ( beginningOfStack + stackCapacity ); i++ )
+            for ( stackElement <typeOfData>* i = currentFreeElement; i < ( beginningOfStack + stackCapacity ); i++ )
                 {
-                *i = poisonValue;
+                i->element = poisonValue;
                 }
             
             return 0;
@@ -400,6 +412,7 @@ template <typename typeOfData> class stack
         
         
     };
+
 
 
 
@@ -413,8 +426,13 @@ int main(int argc, const char * argv[])
     myStack.push ( 0 );
     myStack.pop();
     myStack.pop();
+    printf ( "AAAA: %d\n", myStack.top() );
     
     myStack.dump();
+    
+    
+//    size_t hash1 = std::hash <std::string> {} ( "6" );
+//    std::cout << hash1;
 
 //    printf ( "%d", *myStack.top() );
     
