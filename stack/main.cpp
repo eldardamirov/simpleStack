@@ -36,7 +36,7 @@ template <typename typeOfData> struct stackElement
 template <typename typeOfData> class stack
     {
     public:
-        
+    
         
         stack ( size_t newStackCapacity )
             {
@@ -49,7 +49,6 @@ template <typename typeOfData> class stack
             
             }
         
-
         
         typeOfData* getBeginningOfStack()
             {
@@ -140,13 +139,15 @@ template <typename typeOfData> class stack
                 }
             
             currentFreeElement->element = elementToPush;
+            currentFreeElement->previousHash = std::hash <std::string> {} ( std::to_string ( ( currentFreeElement - 1 )->element ) );
             currentFreeElement++;
+            
             
             if ( ( currentFreeElement ) == ( beginningOfStack + ( stackCapacity - 1 ) ) )
                 {
                 enlargeStack();
                 }
-            
+                
             return 0;
             }
         
@@ -264,7 +265,7 @@ template <typename typeOfData> class stack
         int dump()
             {
             writeToFile dumpOutput ( "dump.txt", 10000 );
-
+            
             
             std::string firstLine = "Errors: ";
             if ( listOfErrors.size() == 0 )
@@ -297,6 +298,7 @@ template <typename typeOfData> class stack
                 dumpOutput.writeString ( "n't ok.\n" );
                 }
             
+            
             for ( int i = 0; i < getStackCapacity(); i++ )
                 {
                 dumpOutput.writeString ( "\n[ " );
@@ -316,7 +318,7 @@ template <typename typeOfData> class stack
                 
             for ( int i = 0; i < getStackCapacity(); i++ )
                 {
-                std::cout << ( typeOfData ) ( beginningOfStack + i )->element << std::endl;
+                std::cout << ( typeOfData ) ( beginningOfStack + i )->element << " hash: " << ( size_t ) ( beginningOfStack + i )->previousHash << std::endl;
                 }
             // make POISON_INT, POISON_DOUBLE
 
@@ -327,18 +329,19 @@ template <typename typeOfData> class stack
     
     private:
     
-//        typeOfData* beginningOfStack = nullptr;
-        stackElement <typeOfData>* beginningOfStack ;
 
+        stackElement <typeOfData>* beginningOfStack ;
         size_t stackCapacity = 0;
-//        typeOfData* currentFreeElement = nullptr;
         stackElement <typeOfData>* currentFreeElement;
         typeOfData poisonValue = NULL;
         std::string listOfErrors = "";
         
+        
+        long long hashSum = 0;
+        
         int init()
             {
-//            beginningOfStack = ( typeOfData* ) calloc ( stackCapacity, sizeof ( typeOfData ) );
+
             beginningOfStack = ( stackElement <typeOfData>* ) calloc ( stackCapacity, sizeof ( stackElement <typeOfData> ) );
             
             if ( typeid ( typeOfData ).name() == typeid ( int ).name() )
@@ -361,7 +364,8 @@ template <typename typeOfData> class stack
                 {
                 poisonValue = NAN;
                 }
-            
+                
+                
             for ( int i = 0; i < getStackCapacity(); i++ )
                 {
                 ( beginningOfStack + i )->element = poisonValue;
@@ -416,26 +420,34 @@ template <typename typeOfData> class stack
 
 
 
-int main(int argc, const char * argv[])
+int main ( int argc, const char * argv[] )
     {
     stack <int> myStack ( 2 );
-    myStack.push ( 4 );
+    myStack.push ( 445321 );
     myStack.push ( 6 );
     myStack.push ( 1 );
     myStack.push ( 17 );
     myStack.push ( 0 );
-    myStack.pop();
-    myStack.pop();
+
     printf ( "AAAA: %d\n", myStack.top() );
     
     myStack.dump();
     
     
-//    size_t hash1 = std::hash <std::string> {} ( "6" );
-//    std::cout << hash1;
+    size_t hash1 = std::hash <std::string> {} ( "445321" );
+    std::cout << "HASH: " << hash1 << std::endl;
 
-//    printf ( "%d", *myStack.top() );
+    
     
     return 0;
     }
 
+
+/*
+контрольная сумма
+привести this к (char*) и до sizeof записать хеш
+канарейки - в начале и конце, пострадают первым
+
+
+
+*/
