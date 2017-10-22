@@ -158,10 +158,10 @@ template <typename typeOfData> class stack
                 }
             
 //            if ( ( currentFreeElement != nullptr ) && ( currentFreeElement->hashOfElement ) )
-                {
-                currentFreeElement->element = elementToPush;
-                currentFreeElement->hashOfElement = std::to_string ( std::hash <std::string> {} ( std::to_string ( currentFreeElement->element ) ) );
-                }
+                
+            currentFreeElement->element = elementToPush;
+            currentFreeElement->hashOfElement = std::to_string ( std::hash <std::string> {} ( std::to_string ( currentFreeElement->element ) ) );
+            
 //            if ( currentFreeElement != beginningOfStack )
 //                {
 //                currentFreeElement->previousHash = std::to_string ( std::hash <std::string> {} ( std::to_string ( ( currentFreeElement - 1 )->element ) ) );
