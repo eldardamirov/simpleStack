@@ -29,7 +29,7 @@ const char poisonChar = '~';
 template <typename typeOfData> struct stackElement
     {
     typeOfData element;
-    size_t previousHash;
+    std::string previousHash;
     };
 
 
@@ -37,7 +37,6 @@ template <typename typeOfData> class stack
     {
     public:
     
-        
         stack ( size_t newStackCapacity )
             {
             stackCapacity = newStackCapacity;
@@ -48,9 +47,27 @@ template <typename typeOfData> class stack
             {
             
             }
+            
+        
+        //////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////
+        
+        void selfTest()
+            {
+            ( beginningOfStack + 1 )->element = 7865;
+            }
         
         
-        typeOfData* getBeginningOfStack()
+        
+        //////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////
+        
+        
+        
+        
+        stackElement <typeOfData>* getBeginningOfStack() // returns pointer to beginning of stack;
             {
             if ( beginningOfStack == nullptr )
                 {
@@ -61,7 +78,8 @@ template <typename typeOfData> class stack
             return beginningOfStack;
             }
         
-        typeOfData* getCurrentFreeElement()
+        
+        typeOfData* getCurrentFreeElement() // returns pointer to next element in stack that is currently free;
             {
             if ( ( currentFreeElement == nullptr ) || ( currentFreeElement < beginningOfStack ) )
                 {
@@ -73,7 +91,7 @@ template <typename typeOfData> class stack
             return currentFreeElement;
             }
         
-        size_t getStackCapacity()
+        size_t getStackCapacity() // returns stack capacity;
             {
             if ( stackCapacity == 0 )
                 {
@@ -85,7 +103,7 @@ template <typename typeOfData> class stack
             return stackCapacity;
             }
         
-        int setBeginningOfStack ( typeOfData* newBeginningOfStack )
+        int setBeginningOfStack ( typeOfData* newBeginningOfStack ) // sets new stack beginning;
             {
             if ( newBeginningOfStack == nullptr )
                 {
@@ -100,7 +118,7 @@ template <typename typeOfData> class stack
             return 0;
             }
         
-        int setCurrentFreeElement ( typeOfData* newCurrentFreeElement )
+        int setCurrentFreeElement ( typeOfData* newCurrentFreeElement ) // sets new pointer to new free element;
             {
             if ( newCurrentFreeElement == nullptr )
                 {
@@ -115,7 +133,7 @@ template <typename typeOfData> class stack
             return 0;
             }
         
-        int setStackCapacity ( size_t newStackCapacity )
+        int setStackCapacity ( size_t newStackCapacity ) // sets new stack capacity;
             {
             if ( newStackCapacity == 0 )
                 {
@@ -139,7 +157,14 @@ template <typename typeOfData> class stack
                 }
             
             currentFreeElement->element = elementToPush;
-            currentFreeElement->previousHash = std::hash <std::string> {} ( std::to_string ( ( currentFreeElement - 1 )->element ) );
+            if ( currentFreeElement != beginningOfStack )
+                {
+                currentFreeElement->previousHash = std::to_string ( std::hash <std::string> {} ( std::to_string ( ( currentFreeElement - 1 )->element ) ) );
+                }
+            else
+                {
+                currentFreeElement->previousHash = std::to_string ( std::hash <std::string> {} ( std::to_string ( poisonValue ) ) );
+                }
             currentFreeElement++;
             
             
@@ -318,11 +343,16 @@ template <typename typeOfData> class stack
                 
             for ( int i = 0; i < getStackCapacity(); i++ )
                 {
-                std::cout << ( typeOfData ) ( beginningOfStack + i )->element << " hash: " << ( size_t ) ( beginningOfStack + i )->previousHash << std::endl;
+                std::cout << ( typeOfData ) ( beginningOfStack + i )->element << " hash: " << ( std::string ) ( beginningOfStack + i )->previousHash << std::endl;
                 }
             // make POISON_INT, POISON_DOUBLE
 
             return 0;
+            }
+            
+        bool ok()
+            {
+            return checkHashes();
             }
             
         
@@ -384,10 +414,6 @@ template <typename typeOfData> class stack
             return 0;
             }
             
-        bool ok()
-            {
-            return false;
-            }
             
         int enlargeStack()
             {
@@ -413,6 +439,25 @@ template <typename typeOfData> class stack
             
             return 0;
             }
+            
+        bool checkHashes()
+            {
+            for ( int indexMove = 1; indexMove < size(); indexMove++ )
+                {
+                //if (  ( ( beginningOfStack + indexMove )->previousHash ) != std::hash <std::string> {} ( std::to_string ( ( beginningOfStack + indexMove )->element ) ) )
+                if ( ( ( beginningOfStack + indexMove )->previousHash ) !=  std::to_string ( std::hash <std::string> {} ( std::to_string ( ( currentFreeElement - 1 )->element ) ) ) ) 
+                    {
+                    std::cout << "COMPARING VALUES: " << ( ( beginningOfStack + indexMove )->previousHash ) << "   " << std::to_string ( ( std::hash <std::string> {} ( std::to_string ( ( beginningOfStack + indexMove )->element ) ) ) ) << std::endl;
+                    
+//                    printf ( "\n !!!! \n" );
+                    return false;
+//                    printf ( "\n !!!! \n" );
+
+                    }
+                }
+                
+            return true;
+            }
         
         
     };
@@ -428,13 +473,25 @@ int main ( int argc, const char * argv[] )
     myStack.push ( 1 );
     myStack.push ( 17 );
     myStack.push ( 0 );
+    myStack.push ( 63 );
+    myStack.push ( 74 );
+    myStack.push ( 831 );
 
     printf ( "AAAA: %d\n", myStack.top() );
     
+    stackElement <int>* pointer = myStack.getBeginningOfStack();
+
+    //myStack.selfTest();
+    
+    ( myStack.getBeginningOfStack() + 2 )->element = 5;
+    
+    
     myStack.dump();
+    ( myStack.getBeginningOfStack() + 2 )->element = 5;
+    std::cout << "STATUS: " << myStack.ok() << std::endl;
     
     
-    size_t hash1 = std::hash <std::string> {} ( "445321" );
+    size_t hash1 = std::hash <std::string> {} ( "6" );
     std::cout << "HASH: " << hash1 << std::endl;
 
     
