@@ -29,7 +29,8 @@ const char poisonChar = '~';
 template <typename typeOfData> struct stackElement
     {
     typeOfData element;
-    std::string previousHash;
+//    std::string previousHash;
+    std::string hashOfElement = "";
     };
 
 
@@ -70,7 +71,7 @@ template <typename typeOfData> class stack
         stackElement <typeOfData>* getBeginningOfStack() // returns pointer to beginning of stack;
             {
             if ( beginningOfStack == nullptr )
-                {
+                { 
                 printf ( "Stack isn't initialized, or some error during init has occured. (Note that returning value in this case isn't prorep one) ¯|_(ツ)_/¯ \n" );
                 listOfErrors = listOfErrors + "In getBeginningOfStack: " + "Stack isn't initialized, or some error during init has occured. (Note that returning value in this case isn't prorep one) ¯|_(ツ)_/¯ \n";
                 return nullptr;
@@ -156,15 +157,20 @@ template <typename typeOfData> class stack
                 return -1;
                 }
             
-            currentFreeElement->element = elementToPush;
-            if ( currentFreeElement != beginningOfStack )
+//            if ( ( currentFreeElement != nullptr ) && ( currentFreeElement->hashOfElement ) )
                 {
-                currentFreeElement->previousHash = std::to_string ( std::hash <std::string> {} ( std::to_string ( ( currentFreeElement - 1 )->element ) ) );
+                currentFreeElement->element = elementToPush;
+                currentFreeElement->hashOfElement = std::to_string ( std::hash <std::string> {} ( std::to_string ( currentFreeElement->element ) ) );
                 }
-            else
-                {
-                currentFreeElement->previousHash = std::to_string ( std::hash <std::string> {} ( std::to_string ( poisonValue ) ) );
-                }
+//            if ( currentFreeElement != beginningOfStack )
+//                {
+//                currentFreeElement->previousHash = std::to_string ( std::hash <std::string> {} ( std::to_string ( ( currentFreeElement - 1 )->element ) ) );
+//                }
+//            else
+//                {
+//                currentFreeElement->previousHash = std::to_string ( std::hash <std::string> {} ( std::to_string ( poisonValue ) ) );
+//                }
+            
             currentFreeElement++;
             
             
@@ -341,9 +347,9 @@ template <typename typeOfData> class stack
                 }
                 
                 
-            for ( int i = 0; i < getStackCapacity(); i++ )
+            for ( int i = 0; i < ( getStackCapacity() - 1 ); i++ )
                 {
-                std::cout << ( typeOfData ) ( beginningOfStack + i )->element << " hash: " << ( std::string ) ( beginningOfStack + i )->previousHash << std::endl;
+                std::cout << ( typeOfData ) ( beginningOfStack + i )->element << " hash: " << ( beginningOfStack + i )->hashOfElement << std::endl;
                 }
             // make POISON_INT, POISON_DOUBLE
 
@@ -445,12 +451,12 @@ template <typename typeOfData> class stack
             for ( int indexMove = 1; indexMove < size(); indexMove++ )
                 {
                 //if (  ( ( beginningOfStack + indexMove )->previousHash ) != std::hash <std::string> {} ( std::to_string ( ( beginningOfStack + indexMove )->element ) ) )
-                if ( ( ( beginningOfStack + indexMove )->previousHash ) !=  std::to_string ( std::hash <std::string> {} ( std::to_string ( ( currentFreeElement - 1 )->element ) ) ) ) 
+                if ( ( ( beginningOfStack + indexMove )->hashOfElement ) !=  std::to_string ( std::hash <std::string> {} ( std::to_string ( ( currentFreeElement + indexMove )->element ) ) ) ) 
                     {
-                    std::cout << "COMPARING VALUES: " << ( ( beginningOfStack + indexMove )->previousHash ) << "   " << std::to_string ( ( std::hash <std::string> {} ( std::to_string ( ( beginningOfStack + indexMove )->element ) ) ) ) << std::endl;
+                    std::cout << "COMPARING VALUES: " << ( ( beginningOfStack + indexMove )->hashOfElement ) << "   " << std::to_string ( ( std::hash <std::string> {} ( std::to_string ( ( beginningOfStack + indexMove )->element ) ) ) ) << std::endl;
                     
 //                    printf ( "\n !!!! \n" );
-                    return false;
+//                    return false;
 //                    printf ( "\n !!!! \n" );
 
                     }
@@ -476,6 +482,7 @@ int main ( int argc, const char * argv[] )
     myStack.push ( 63 );
     myStack.push ( 74 );
     myStack.push ( 831 );
+    myStack.push ( 628 );
 
     printf ( "AAAA: %d\n", myStack.top() );
     
@@ -483,7 +490,7 @@ int main ( int argc, const char * argv[] )
 
     //myStack.selfTest();
     
-    ( myStack.getBeginningOfStack() + 2 )->element = 5;
+    //( myStack.getBeginningOfStack() + 2 )->element = 5;
     
     
     myStack.dump();
