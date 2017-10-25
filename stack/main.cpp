@@ -18,10 +18,12 @@
 #include "logsConstants.h"
 
 
+//// ------------------------------------------------------------------------------------------------
 const int poisonInt = 12345678;
 const double poisonDouble = NAN;
 const float poisonFloat = NAN;
 const char poisonChar = '~';
+//// ------------------------------------------------------------------------------------------------
 
 
 template <typename typeOfData> struct stackElement
@@ -47,20 +49,23 @@ template <typename typeOfData> class stack
             }
             
         
-        //////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////
-        
-        void selfTest()
+        //// ------------------------------------------------------------------------------------------------
+        int selfTest()
             {
-            ( beginningOfStack + 1 )->element = 7865;
+            srand ( time ( NULL ) );
+            
+            for ( stackElement <typeOfData>* i = beginningOfStack; i < currentFreeElement; i++ )
+                {
+                if ( rand() % 4 == 1 )
+                    {
+                    i->element = poisonValue;
+                    }
+                }
+                
+            return 0;
             }
+        //// ------------------------------------------------------------------------------------------------
         
-        
-        
-        //////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////
         
         
         
@@ -212,7 +217,7 @@ template <typename typeOfData> class stack
                 
                 listOfErrors = listOfErrors + "In POP: " + stackCurrentFreeElementError;
 
-                return -1;
+                throw;
                 }
                 
             currentFreeElement--;
@@ -224,7 +229,6 @@ template <typename typeOfData> class stack
             {
             if ( ( currentFreeElement == nullptr ) || ( currentFreeElement == nullptr ) )
                 {
-                
                 listOfErrors = listOfErrors + "In EMPTY: " + stackInitError;
 
                 return false;
@@ -244,13 +248,12 @@ template <typename typeOfData> class stack
             {
             if ( ( beginningOfStack == nullptr ) || ( currentFreeElement < beginningOfStack ) || ( currentFreeElement == nullptr ) )
                 {
-                
                 listOfErrors = listOfErrors + "In SIZE: " + stackInitError;
 
-                return -1;
+                throw;
                 }
                 
-            int currentSize = ( currentFreeElement - beginningOfStack );
+            int currentSize = ( currentFreeElement - beginningOfStack ) + 1;
             
             return currentSize;
             }
@@ -284,7 +287,6 @@ template <typename typeOfData> class stack
         int dump()
             {
             writeToFile dumpOutput ( "dump.txt", 10000 );
-            
             
             std::string firstLine = "Errors: ";
             if ( listOfErrors.size() == 0 )
@@ -329,17 +331,15 @@ template <typename typeOfData> class stack
                 else
                     {
                     dumpOutput.writeString ( " Here is poison value " );
-//                    dumpOutput.writeString ( "%" );
                     }
+                    
                 dumpOutput.writeString ( " ]" );
                 }
-                
                 
             for ( int i = 0; i < ( getStackCapacity() - 1 ); i++ )
                 {
                 std::cout << ( typeOfData ) ( beginningOfStack + i )->element << " hash: " << ( beginningOfStack + i )->hashOfElement << std::endl;
                 }
-            // make POISON_INT, POISON_DOUBLE
 
             return 0;
             }
@@ -353,19 +353,19 @@ template <typename typeOfData> class stack
     
     private:
     
-
-        stackElement <typeOfData>* beginningOfStack ;
-        size_t stackCapacity = 0;
+        //// ------------------------------------------------------------------------------------------------
+        stackElement <typeOfData>* beginningOfStack;
         stackElement <typeOfData>* currentFreeElement;
+        size_t stackCapacity = 0;
+        //// ------------------------------------------------------------------------------------------------
         typeOfData poisonValue = NULL;
         std::string listOfErrors = "";
-        
+        //// ------------------------------------------------------------------------------------------------
         
         long long hashSum = 0;
         
         int init()
             {
-
             beginningOfStack = ( stackElement <typeOfData>* ) calloc ( stackCapacity, sizeof ( stackElement <typeOfData> ) );
             
             if ( typeid ( typeOfData ).name() == typeid ( int ).name() )
@@ -389,7 +389,6 @@ template <typename typeOfData> class stack
                 poisonValue = NAN;
                 }
                 
-                
             for ( int i = 0; i < getStackCapacity(); i++ )
                 {
                 ( beginningOfStack + i )->element = poisonValue;
@@ -397,12 +396,12 @@ template <typename typeOfData> class stack
             
             if ( beginningOfStack == nullptr )
                 {
-                printf ( "Beginning pointer isn't correct. ¯|_(ツ)_/¯ \n" );
-                return -1;
+                printf ( "%s", stackBeginningError );
+                
+                throw;
                 }
             
             currentFreeElement = beginningOfStack;
-            
             
             
             return 0;
@@ -413,14 +412,16 @@ template <typename typeOfData> class stack
             {
             if ( beginningOfStack == nullptr )
                 {
-                printf ( "Beginning pointer isn't correct. ¯|_(ツ)_/¯ \n" );
-                return -1;
+                printf ( "%s", stackBeginningError );
+                
+                throw;
                 }
                 
                 
             int tempCurrentFreeElement = ( currentFreeElement - beginningOfStack );
             
-            beginningOfStack = ( stackElement <typeOfData>* ) realloc ( beginningOfStack, ( ( stackCapacity * 2 ) * sizeof ( stackElement <typeOfData> ) ) );
+//            beginningOfStack = ( stackElement <typeOfData>* ) realloc ( beginningOfStack, ( ( stackCapacity * 2 ) * sizeof ( stackElement <typeOfData> ) ) );
+            reinitStack ( tempCurrentFreeElement );
             stackCapacity = stackCapacity * 2;
         
             
@@ -434,25 +435,34 @@ template <typename typeOfData> class stack
             return 0;
             }
             
-        bool checkHashes()
+        stackElement <typeOfData>* reinitStack ( int tempCurrentFreeElement )
             {
-            for ( int indexMove = 1; indexMove < size(); indexMove++ )
+            stackElement <typeOfData>* tempBeginningOfStack = ( stackElement <typeOfData>* ) calloc ( ( stackCapacity * 2 ), sizeof ( stackElement <typeOfData> ) );
+            
+            for ( int i = 0; i < tempCurrentFreeElement; i++ )
                 {
-                //if (  ( ( beginningOfStack + indexMove )->previousHash ) != std::hash <std::string> {} ( std::to_string ( ( beginningOfStack + indexMove )->element ) ) )
-                if ( ( ( beginningOfStack + indexMove )->hashOfElement ) !=  std::to_string ( std::hash <std::string> {} ( std::to_string ( ( currentFreeElement + indexMove )->element ) ) ) ) 
-                    {
-                    std::cout << "COMPARING VALUES: " << ( ( beginningOfStack + indexMove )->hashOfElement ) << "   " << std::to_string ( ( std::hash <std::string> {} ( std::to_string ( ( beginningOfStack + indexMove )->element ) ) ) ) << std::endl;
-                    
-//                    printf ( "\n !!!! \n" );
-//                    return false;
-//                    printf ( "\n !!!! \n" );
-
-                    }
+                ( tempBeginningOfStack + i )->element = ( beginningOfStack + i )->element;
+                ( tempBeginningOfStack + i )->hashOfElement = ( beginningOfStack + i )->hashOfElement;
                 }
                 
-            return true;
+            return tempBeginningOfStack;
             }
-        
+            
+            
+            
+            bool checkHashes()
+                {
+                for ( stackElement <typeOfData>* currentElement = beginningOfStack; currentElement < currentFreeElement; currentElement++ )
+                    {
+                    if ( currentElement->hashOfElement != std::to_string ( std::hash <std::string> {} ( std::to_string ( currentElement->element ) ) ) )
+                        {
+                        return false;
+                        }
+                    }
+                
+                return true;
+                }
+                
         
     };
 
@@ -461,10 +471,6 @@ template <typename typeOfData> class stack
 
 int main ( int argc, const char * argv[] )
     {
-
-    
-    
-    
     stack <int> myStack ( 2 );
     myStack.push ( 445321 );
     myStack.push ( 6 );
@@ -475,10 +481,13 @@ int main ( int argc, const char * argv[] )
     myStack.push ( 74 );
     myStack.push ( 831 );
     myStack.push ( 628 );
+    myStack.pop();
+    
+    myStack.selfTest();
 
     printf ( "AAAA: %d\n", myStack.top() );
     
-    stackElement <int>* pointer = myStack.getBeginningOfStack();
+    //stackElement <int>* pointer = myStack.getBeginningOfStack();
 
     //myStack.selfTest();
     
@@ -486,12 +495,13 @@ int main ( int argc, const char * argv[] )
     
     
     myStack.dump();
+    std::cout << "\nHEEEEEEEEEEY   " << myStack.ok() << "ENDL" << std::endl;
 //    ( myStack.getBeginningOfStack() + 2 )->element = 5;
-    std::cout << "STATUS: " << myStack.ok() << std::endl;
+    //std::cout << "STATUS: " << myStack.ok() << std::endl;
     
     
-    size_t hash1 = std::hash <std::string> {} ( "6" );
-    std::cout << "HASH: " << hash1 << std::endl;
+    //size_t hash1 = std::hash <std::string> {} ( "6" );
+    //std::cout << "HASH: " << hash1 << std::endl;
 
     
     
