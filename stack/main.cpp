@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//  stack
+//  Stack
 //
 //  Created by Эльдар Дамиров on 11.10.2017.
 //  Copyright © 2017 Эльдар Дамиров. All rights reserved.
@@ -33,17 +33,17 @@ template <typename typeOfData> struct stackElement
     };
 
 
-template <typename typeOfData> class stack
+template <typename typeOfData> class Stack
     {
     public:
     
-        stack ( size_t newStackCapacity )
+        Stack ( size_t newStackCapacity )
             {
             stackCapacity = newStackCapacity;
             init();
             }
         
-        ~stack()
+        ~Stack()
             {
             free ( beginningOfStack );
             }
@@ -70,7 +70,7 @@ template <typename typeOfData> class stack
         
         
         
-        stackElement <typeOfData>* getBeginningOfStack() // returns pointer to beginning of stack;
+        stackElement <typeOfData>* getBeginningOfStack() // returns pointer to beginning of Stack;
             {
             if ( beginningOfStack == nullptr )
                 { 
@@ -82,7 +82,7 @@ template <typename typeOfData> class stack
             }
         
         
-        typeOfData* getCurrentFreeElement() // returns pointer to next element in stack that is currently free;
+        typeOfData* getCurrentFreeElement() // returns pointer to next element in Stack that is currently free;
             {
             if ( ( currentFreeElement == nullptr ) || ( currentFreeElement < beginningOfStack ) )
                 {
@@ -94,7 +94,7 @@ template <typename typeOfData> class stack
             return currentFreeElement;
             }
         
-        size_t getStackCapacity() // returns stack capacity;
+        size_t getStackCapacity() // returns Stack capacity;
             {
             if ( stackCapacity == 0 )
                 {
@@ -106,7 +106,7 @@ template <typename typeOfData> class stack
             return stackCapacity;
             }
         
-        int setBeginningOfStack ( typeOfData* newBeginningOfStack ) // sets new stack beginning;
+        int setBeginningOfStack ( typeOfData* newBeginningOfStack ) // sets new Stack beginning;
             {
             if ( newBeginningOfStack == nullptr )
                 {
@@ -117,6 +117,8 @@ template <typename typeOfData> class stack
                 }
             
             beginningOfStack = newBeginningOfStack;
+            
+//            classControlSum = calculateClassSum();
             
             return 0;
             }
@@ -133,10 +135,12 @@ template <typename typeOfData> class stack
                 
             currentFreeElement = newCurrentFreeElement;
             
+//            classControlSum = calculateClassSum();
+            
             return 0;
             }
         
-        int setStackCapacity ( size_t newStackCapacity ) // sets new stack capacity;
+        int setStackCapacity ( size_t newStackCapacity ) // sets new Stack capacity;
             {
             if ( newStackCapacity == 0 )
                 {
@@ -146,6 +150,8 @@ template <typename typeOfData> class stack
                 }
                 
             stackCapacity = newStackCapacity;
+            
+//            classControlSum = calculateClassSum();
                 
             return 0;
             }
@@ -171,6 +177,8 @@ template <typename typeOfData> class stack
                 enlargeStack();
                 }
                 
+//            classControlSum = calculateClassSum();
+
             return 0;
             }
         
@@ -185,6 +193,8 @@ template <typename typeOfData> class stack
                 
             currentFreeElement = beginningOfStack;
             
+//            classControlSum = calculateClassSum();
+
             return 0;
             }
         
@@ -198,15 +208,6 @@ template <typename typeOfData> class stack
                 return nullptr;
                 }
             
-//            if ( ( currentFreeElement - 1 ) < beginningOfStack )
-//                {
-//                return ( typeOfData* ) beginningOfStack->element;
-//                }
-//            else
-//                {
-//                return ( typeOfData* ) ( currentFreeElement - 1 )->element;
-//                }
-
             return ( typeOfData* ) ( currentFreeElement - 1 )->element;
             }
         
@@ -222,6 +223,8 @@ template <typename typeOfData> class stack
                 
             currentFreeElement--;
             
+//            classControlSum = calculateClassSum();
+
             return 0;
             }
         
@@ -255,10 +258,12 @@ template <typename typeOfData> class stack
                 
             int currentSize = ( currentFreeElement - beginningOfStack ) + 1;
             
+//            classControlSum = calculateClassSum();
+            
             return currentSize;
             }
         
-        int swap ( stack stackToSwapWith )
+        int swap ( Stack stackToSwapWith )
             {
             typeOfData* tempBeginningOfStack = stackToSwapWith.getBeginningOfStack();
             typeOfData* tempCurrentFreeElement = stackToSwapWith.getCurrentFreeElement();
@@ -346,7 +351,13 @@ template <typename typeOfData> class stack
             
         bool ok()
             {
+//            return ( checkHashes() && checkClassControlSum() );
             return checkHashes();
+            }
+            
+        Stack* getClassPointer()
+            {
+            return this;
             }
             
         
@@ -361,8 +372,10 @@ template <typename typeOfData> class stack
         typeOfData poisonValue = NULL;
         std::string listOfErrors = "";
         //// ------------------------------------------------------------------------------------------------
-        
         long long hashSum = 0;
+        char* classControlSum = 0;
+        //// ------------------------------------------------------------------------------------------------
+
         
         int init()
             {
@@ -403,6 +416,7 @@ template <typename typeOfData> class stack
             
             currentFreeElement = beginningOfStack;
             
+//            classControlSum = calculateClassSum();
             
             return 0;
             }
@@ -420,7 +434,6 @@ template <typename typeOfData> class stack
                 
             int tempCurrentFreeElement = ( currentFreeElement - beginningOfStack );
             
-//            beginningOfStack = ( stackElement <typeOfData>* ) realloc ( beginningOfStack, ( ( stackCapacity * 2 ) * sizeof ( stackElement <typeOfData> ) ) );
             reinitStack ( tempCurrentFreeElement );
             stackCapacity = stackCapacity * 2;
         
@@ -463,6 +476,34 @@ template <typename typeOfData> class stack
                 return true;
                 }
                 
+            bool checkClassControlSum()
+                {
+                if ( classControlSum == calculateClassSum() )
+                    {
+                    return true;
+                    }
+                else
+                    {
+                    return false;
+                    }
+                }
+                
+            char* calculateClassSum()
+                {
+                char* tempControlSum = nullptr;
+                void* classPointer = getClassPointer();
+
+                
+                for ( int moveIndex = 0; moveIndex < sizeof ( Stack <typeOfData> ); moveIndex++ ) 
+                    {
+                    *tempControlSum += *( ( char* ) classPointer + moveIndex );  
+                    }
+                    
+                return tempControlSum;
+                }
+                
+            
+                
         
     };
 
@@ -471,19 +512,27 @@ template <typename typeOfData> class stack
 
 int main ( int argc, const char * argv[] )
     {
-    stack <int> myStack ( 2 );
+    Stack <int> myStack ( 2 );
     myStack.push ( 445321 );
     myStack.push ( 6 );
     myStack.push ( 1 );
-    myStack.push ( 17 );
-    myStack.push ( 0 );
-    myStack.push ( 63 );
-    myStack.push ( 74 );
-    myStack.push ( 831 );
-    myStack.push ( 628 );
+//    myStack.push ( 17 );
+//    myStack.push ( 0 );
+//    myStack.push ( 63 );
+//    myStack.push ( 74 );
+//    myStack.push ( 3409309 );
+//    myStack.push ( 628 );
+//    myStack.push ( 5473 );
+//    myStack.push ( 628 );
+//    myStack.push ( 5473 );
+//    myStack.push ( 63 );
+//    myStack.push ( 628 );
+//    myStack.push ( 5473 );
     myStack.pop();
     
-    myStack.selfTest();
+    
+    
+//    myStack.selfTest();
 
     printf ( "AAAA: %d\n", myStack.top() );
     
@@ -494,19 +543,39 @@ int main ( int argc, const char * argv[] )
     //( myStack.getBeginningOfStack() + 2 )->element = 5;
     
     
-    myStack.dump();
-    std::cout << "\nHEEEEEEEEEEY   " << myStack.ok() << "ENDL" << std::endl;
+    //myStack.dump();
+//    std::cout << "\nHEEEEEEEEEEY   " << myStack.ok() << "ENDL" << std::endl;
+//    printf ( "HEY: %zu", sizeof ( myStack ) );
+    
 //    ( myStack.getBeginningOfStack() + 2 )->element = 5;
     //std::cout << "STATUS: " << myStack.ok() << std::endl;
     
     
-    //size_t hash1 = std::hash <std::string> {} ( "6" );
-    //std::cout << "HASH: " << hash1 << std::endl;
+//    void* tempStackSum = myStack.getClassPointer();
+//    std::cout << tempStackSum;
+//    char* controlSum;
+//    size_t controlSuuum = 0;
+//    for ( int move = 0; move < sizeof ( myStack ); move++ )
+//        {
+//        controlSuuum += std::hash <int*> {} ( ( int* ) tempStackSum + move );
+//        *controlSum += *( ( char* ) tempStackSum + move );
+//        }
+//        
+//    printf ( "\n FFFFF: %s   HERE IS END \n", controlSum );
+//    printf ( "\nDDDDDDDDD: %d ", controlSuuum );
+    
+//    size_t hash1 = std::hash <Stack <int>> ( myStack );
+//    std::cout << "HASH: " << hash1 << std::endl;
 
     
     
     return 0;
     }
+
+// 694360230    FFFFF: ԡ\261w\377   HERE IS END 
+//  FFFFF: \224\367\277\357\376   HERE IS END 
+
+// -573963153    FFFFF: \241\261w\377   HERE IS END 
 
 
 /*
