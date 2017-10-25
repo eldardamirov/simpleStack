@@ -14,10 +14,8 @@
 
 #include <time.h>
 
-
 #include "fileIO.h"
-
-
+#include "logsConstants.h"
 
 
 const int poisonInt = 12345678;
@@ -29,7 +27,6 @@ const char poisonChar = '~';
 template <typename typeOfData> struct stackElement
     {
     typeOfData element;
-//    std::string previousHash;
     std::string hashOfElement = "";
     };
 
@@ -46,7 +43,7 @@ template <typename typeOfData> class stack
         
         ~stack()
             {
-            
+            free ( beginningOfStack );
             }
             
         
@@ -73,7 +70,7 @@ template <typename typeOfData> class stack
             if ( beginningOfStack == nullptr )
                 { 
                 
-                listOfErrors = listOfErrors + "In getBeginningOfStack: " + "Stack isn't initialized, or some error during init has occured. (Note that returning value in this case isn't prorep one) ¯|_(ツ)_/¯ \n";
+                listOfErrors = listOfErrors + "In getBeginningOfStack: " + stackInitError;
                 return nullptr;
                 }
             return beginningOfStack;
@@ -85,7 +82,7 @@ template <typename typeOfData> class stack
             if ( ( currentFreeElement == nullptr ) || ( currentFreeElement < beginningOfStack ) )
                 {
          
-                listOfErrors = listOfErrors + "In getCurrentFreeElement: " + "Current free element is out of range or even hasn't been initialized, maybe something is wrong with stack pointer. (Note that returning value in this case isn't prorep one) ¯|_(ツ)_/¯ \n";
+                listOfErrors = listOfErrors + "In getCurrentFreeElement: " + stackCurrentFreeElementError;
                 return nullptr;
                 }
                 
@@ -96,9 +93,9 @@ template <typename typeOfData> class stack
             {
             if ( stackCapacity == 0 )
                 {
+                listOfErrors = listOfErrors + "In getStackCapacity: " + stackStorageError;
                 
-                listOfErrors = listOfErrors + "In getStackCapacity: " + "Something is wrong with stack storage or stack capacity value hasn't been updated. ¯|_(ツ)_/¯ \n";
-                return -1;
+                throw;
                 }
                 
             return stackCapacity;
@@ -109,9 +106,9 @@ template <typename typeOfData> class stack
             if ( newBeginningOfStack == nullptr )
                 {
                 
-                listOfErrors = listOfErrors + "In setBeginningOfStack: " + "New beginning of stack is incorrect. (Note that returning value in this case isn't prorep one) ¯|_(ツ)_/¯ \n";
+                listOfErrors = listOfErrors + "In setBeginningOfStack: " + stackBeginningError;
 
-                return -1;
+                throw;
                 }
             
             beginningOfStack = newBeginningOfStack;
@@ -124,9 +121,9 @@ template <typename typeOfData> class stack
             if ( newCurrentFreeElement == nullptr )
                 {
                 
-                listOfErrors = listOfErrors + "In setCurrentFreeElement: " + "New current free element is incorrect. (Note that returning value in this case isn't prorep one) ¯|_(ツ)_/¯ \n";
+                listOfErrors = listOfErrors + "In setCurrentFreeElement: " + stackCurrentFreeElementError;
 
-                return -1;
+                throw;
                 }
                 
             currentFreeElement = newCurrentFreeElement;
@@ -138,9 +135,9 @@ template <typename typeOfData> class stack
             {
             if ( newStackCapacity == 0 )
                 {
+                listOfErrors = listOfErrors + "In setStackCapacity: " + stackStorageError;
                 
-                listOfErrors = listOfErrors + "In setStackCapacity: " + "Something is wrong with stack storage or stack capacity value hasn't been updated. ¯|_(ツ)_/¯ \n";
-                return -1;
+                throw;
                 }
                 
             stackCapacity = newStackCapacity;
@@ -152,16 +149,14 @@ template <typename typeOfData> class stack
             {
             if ( currentFreeElement > ( beginningOfStack + ( stackCapacity - 1 ) ) )
                 {
+                listOfErrors = listOfErrors + "In PUSH: " + stackCurrentFreeElementError;
                 
-                listOfErrors = listOfErrors + "In PUSH: " + "Bad access, trying to access element out of range. ¯|_(ツ)_/¯ \n";
-                return -1;
+                throw;
                 }
             
                 
             currentFreeElement->element = elementToPush;
             currentFreeElement->hashOfElement = std::to_string ( std::hash <std::string> {} ( std::to_string ( currentFreeElement->element ) ) );
-            
-
             
             currentFreeElement++;
             
@@ -178,9 +173,9 @@ template <typename typeOfData> class stack
             {
             if ( ( currentFreeElement == nullptr ) || ( currentFreeElement == nullptr ) )
                 {
+                listOfErrors = listOfErrors + "In CLEAR: " + stackInitError;
                 
-                listOfErrors = listOfErrors + "In CLEAR: " + "Stack isn't initialized, or some error during init has occured. ¯|_(ツ)_/¯ \n";
-                return -1;
+                throw;
                 }
                 
             currentFreeElement = beginningOfStack;
@@ -193,20 +188,21 @@ template <typename typeOfData> class stack
             if ( ( ( currentFreeElement - 1 ) == nullptr ) || ( beginningOfStack == nullptr ) )
                 {
                 
-                listOfErrors = listOfErrors + "In TOP: " + "Current free element is out of range or even hasn't been initialized, maybe something is wrong with stack pointer. (Note that returning value in this case isn't prorep one) ¯|_(ツ)_/¯ \n";
+                listOfErrors = listOfErrors + "In TOP: " + stackCurrentFreeElementError;
 
                 return nullptr;
                 }
             
-            if ( ( currentFreeElement - 1 ) < beginningOfStack )
-                {
-                return ( typeOfData* ) beginningOfStack->element;
-                }
-            else
-                {
-                return ( typeOfData* ) ( currentFreeElement - 1 )->element;
-                }
-                
+//            if ( ( currentFreeElement - 1 ) < beginningOfStack )
+//                {
+//                return ( typeOfData* ) beginningOfStack->element;
+//                }
+//            else
+//                {
+//                return ( typeOfData* ) ( currentFreeElement - 1 )->element;
+//                }
+
+            return ( typeOfData* ) ( currentFreeElement - 1 )->element;
             }
         
         int pop()
@@ -214,7 +210,7 @@ template <typename typeOfData> class stack
             if ( ( currentFreeElement - 1 ) <  beginningOfStack )
                 {
                 
-                listOfErrors = listOfErrors + "In POP: " + "Current top element is out of range or even hasn't been initialized, maybe something is wrong with stack pointer. ¯|_(ツ)_/¯ \n";
+                listOfErrors = listOfErrors + "In POP: " + stackCurrentFreeElementError;
 
                 return -1;
                 }
@@ -229,7 +225,7 @@ template <typename typeOfData> class stack
             if ( ( currentFreeElement == nullptr ) || ( currentFreeElement == nullptr ) )
                 {
                 
-                listOfErrors = listOfErrors + "In EMPTY: " + "Stack isn't initialized, or some error during init has occured. (Note that returning value in this case isn't prorep one) ¯|_(ツ)_/¯ \n";
+                listOfErrors = listOfErrors + "In EMPTY: " + stackInitError;
 
                 return false;
                 }
@@ -249,7 +245,7 @@ template <typename typeOfData> class stack
             if ( ( beginningOfStack == nullptr ) || ( currentFreeElement < beginningOfStack ) || ( currentFreeElement == nullptr ) )
                 {
                 
-                listOfErrors = listOfErrors + "In SIZE: " + "Stack isn't initialized, or some error during init has occured. (Note that returning value in this case isn't prorep one) ¯|_(ツ)_/¯ \n";
+                listOfErrors = listOfErrors + "In SIZE: " + stackInitError;
 
                 return -1;
                 }
@@ -267,8 +263,8 @@ template <typename typeOfData> class stack
             
             if ( ( tempBeginningOfStack == nullptr ) || ( tempCurrentFreeElement == nullptr ) || ( tempStackCapacity == 0 ) )
                 {
-                printf ( "One of the swapping stacks isn't initialised or working wrong. ¯|_(ツ)_/¯ \n" );
-                listOfErrors = listOfErrors + "In SWAP: " + "One of the swapping stacks isn't initialised or working wrong. ¯|_(ツ)_/¯ \n";
+                printf ( stackStorageError );
+                listOfErrors = listOfErrors + "In SWAP: " + stackStorageError;
                 
                 return -1;
                 }
@@ -465,6 +461,10 @@ template <typename typeOfData> class stack
 
 int main ( int argc, const char * argv[] )
     {
+
+    
+    
+    
     stack <int> myStack ( 2 );
     myStack.push ( 445321 );
     myStack.push ( 6 );
@@ -486,7 +486,7 @@ int main ( int argc, const char * argv[] )
     
     
     myStack.dump();
-    ( myStack.getBeginningOfStack() + 2 )->element = 5;
+//    ( myStack.getBeginningOfStack() + 2 )->element = 5;
     std::cout << "STATUS: " << myStack.ok() << std::endl;
     
     

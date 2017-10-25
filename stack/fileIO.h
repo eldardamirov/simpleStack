@@ -9,7 +9,6 @@
 #ifndef fileIO_h
 #define fileIO_h
 
-
 #include <sys/uio.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -89,23 +88,27 @@ class readFromFile
             }
 
     private:
-
+        
+        //// ------------------------------------------------------------------------------------------------
         char* inputFileName = {};
+        //// ------------------------------------------------------------------------------------------------
         struct stat st;
-        size_t fileSize = 0;
         int fileDescriptor = 0;
         unsigned char* dataPointer = {};
         fileMapping* mapping;
+        size_t fileSize = 0;
+        //// ------------------------------------------------------------------------------------------------
         int currentChar = 0;
+        //// ------------------------------------------------------------------------------------------------
 
         void init()
             {
-           
             fileDescriptor = open ( "input.txt", O_RDWR , 0 );
             if ( fileDescriptor < 0 )
                 {
                 printf ( "File descriptor error.\n" );
-                abort();
+                
+                throw;
                 }
 
 
@@ -113,7 +116,8 @@ class readFromFile
                 {
                 printf ( "Fstat failed.\n" );
                 close ( fileDescriptor );
-                abort();
+                
+                throw;
                 }
             fileSize = ( size_t ) st.st_size;
 
@@ -131,7 +135,8 @@ class readFromFile
                 {
                 printf ( "mmap failed\n" );
                 close ( fileDescriptor );
-                abort();
+
+                throw;
                 }
 
             return tempDataPointer;
@@ -146,7 +151,8 @@ class readFromFile
                 printf ( "mmap failed\n" );
                 munmap ( dataPointer, fileSize );
                 close ( fileDescriptor );
-                abort();
+                
+                throw;
                 }
 
             tempMapping->fileDescriptor = fileDescriptor;
@@ -180,9 +186,6 @@ class writeToFile
             init();
             }
 
-
-        
-
         void writeNextChar ( char inputChar )
             {
             map [ currentPosition ] = inputChar;
@@ -204,18 +207,20 @@ class writeToFile
             close ( fileDescriptor );
 
             }
-
-
+            
     private:
-
+    
+        //// ------------------------------------------------------------------------------------------------
         char* outputFileName = {};
+        //// ------------------------------------------------------------------------------------------------
         struct stat st;
-        size_t fileSizeMe = 0;
         int fileDescriptor = 0;
         int fileDescription = 0;
         char* map;
+        size_t fileSizeMe = 0;
+        //// ------------------------------------------------------------------------------------------------
         int currentPosition = 0;
-
+        //// ------------------------------------------------------------------------------------------------
 
 
         void init()
@@ -224,25 +229,24 @@ class writeToFile
             if ( fileDescriptor < 0 )
                 {
                 printf ( "File descriptor error.\n" );
-                abort();
+                
+                throw;
                 }
 
             fileDescription = makeFileDescription ( fileDescriptor, fileSizeMe );
             updateFileSize ( fileDescriptor, fileDescription );
             map = mmapFile ( fileDescriptor, fileSizeMe );
-
             }
-
 
         int makeFileDescription ( int fileDescriptor, size_t fileSize )
             {
-            
-            int tempFileDescription = lseek ( fileDescriptor, fileSizeMe, SEEK_SET );
+            int tempFileDescription = lseek ( fileDescriptor, int ( fileSizeMe ), SEEK_SET );
             if ( tempFileDescription < 0 )
                 {
                 close ( fileDescriptor );
                 printf ( "lseek error." );
-                abort();
+                
+                throw;
                 }
 
             return tempFileDescription;
@@ -254,11 +258,10 @@ class writeToFile
                 {
                 close ( fileDescriptor );
                 printf ( "Writing null string to last file's byte failed." );
-                abort();
+                
+                throw;
                 }
             }
-
-
 
         char* mmapFile ( int fileDescriptor, size_t fileSize )
             {
@@ -267,7 +270,8 @@ class writeToFile
                 {
                 close ( fileDescriptor );
                 printf ( "File mapping failed." );
-                abort();
+                
+                throw;
                 }
 
             return tempMap;

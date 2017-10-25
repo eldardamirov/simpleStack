@@ -27,6 +27,7 @@
 		863211A81F8E9D7400525793 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		863211C21F8ECB0900525793 /* fileIO.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fileIO.h; sourceTree = "<group>"; };
 		863211C31F8ECBB500525793 /* dump.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = dump.txt; sourceTree = "<group>"; };
+		865661831FA129BB00A7430E /* logsConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = logsConstants.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				863211A81F8E9D7400525793 /* main.cpp */,
+				865661831FA129BB00A7430E /* logsConstants.h */,
 				863211C21F8ECB0900525793 /* fileIO.h */,
 				863211C31F8ECBB500525793 /* dump.txt */,
 			);
