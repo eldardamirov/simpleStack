@@ -6,13 +6,7 @@
 //  Copyright © 2017 Эльдар Дамиров. All rights reserved.
 //
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include <functional>
-#include <unordered_map>
-
-#include <time.h>
+#include<bits/stdc++.h>
 
 #include "fileIO.h"
 #include "logsConstants.h"
